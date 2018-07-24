@@ -42,7 +42,7 @@ fn main() {
     let model_file_path = model_file_path.unwrap();
 
     // Set keyword file paths
-    let keyword_file_paths: Vec<&str> = keyword_file_paths.unwrap().map(|val| val).collect();
+    let keyword_file_paths: Vec<String> = keyword_file_paths.unwrap().map(|val| val.to_string()).collect();
 
     // Set sensitivities
     let sensitivities: Vec<f32> = keyword_file_paths.iter().map(|_val| 0.5).collect();
@@ -68,6 +68,7 @@ fn main() {
         if keyword_file_paths.len() == 1 {
             unsafe { pv::Object::new(&model_file_path, &keyword_file_paths[0], sensitivities[0]).unwrap() }
         } else {
+            let keyword_file_paths: Vec<&str> = keyword_file_paths.iter().map(|s| s.as_str()).collect();
             unsafe { pv::Object::new_multiple_keywords(&model_file_path, &keyword_file_paths, &sensitivities).unwrap() }
         };
 
@@ -95,9 +96,17 @@ fn main() {
                 // Process buffer when it reaches Porcupine frame length
                 if samples_buffer.len() >= frame_length {
                     let data: Vec<i16> = samples_buffer.drain(..frame_length).collect();
-                    if let Ok(detected) = unsafe { object.process(&data) } {
-                        if detected {
-                            println!("Detected keyword!");
+                    if keyword_file_paths.len() == 1 {
+                        if let Ok(detected) = unsafe { object.process(&data) } {
+                            if detected {
+                                println!("Detected keyword!");
+                            }
+                        }
+                    } else {
+                        if let Ok(detected) = unsafe { object.process_multiple_keywords(&data) } {
+                            if detected >= 0 {
+                                println!("Detected keyword at index {}!", detected);
+                            }
                         }
                     }
                 }
