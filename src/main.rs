@@ -25,7 +25,7 @@ fn main() {
             .version("0.1.0")
             .about("This is a simple Rust program that demonstrates how to use Porcupine")
             .arg(Arg::with_name("model-file-path").short("m").long("model-file-path").value_name("FILE").help("Sets the model file path").takes_value(true))
-            .arg(Arg::with_name("keyword-file-path").short("k").long("keyword-file-path").value_name("FILE").help("Sets the keyword file path").takes_value(true).multiple(true))
+            .arg(Arg::with_name("keyword-file-path").short("k").long("keyword-file-path").value_name("FILE").help("Sets the keyword file path(s)").takes_value(true).multiple(true))
             .get_matches();
     let model_file_path = matches.value_of("model-file-path");
     if model_file_path.is_none() {
